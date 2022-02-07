@@ -14,4 +14,15 @@ contract Lottery {
         require(msg.value > .01 ether);
         players.push(msg.sender);
     }
+
+    // it's a pseudo random number , as we can see is easy to predict each params
+    function random() private view returns (uint) {
+        return uint(keccak256(abi.encodePacked(block.difficulty * block.timestamp * players.length)));
+    }
+
+    function pickWinner() public returns (address){
+        uint randomValue = random();
+        uint winnerIndex = randomValue % players.length;
+        return players[winnerIndex];
+    }
 }

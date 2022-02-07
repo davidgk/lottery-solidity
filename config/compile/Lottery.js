@@ -27,7 +27,8 @@ const input = {
 
 
 module.exports = () => {
-    let contract = JSON.parse(solCompiler.compile(JSON.stringify(input))).contracts['Lottery.sol'];
+    let contracts = JSON.parse(solCompiler.compile(JSON.stringify(input))).contracts
+    const contract = contracts["Lottery.sol"];
     return contract.Lottery;
 }
 

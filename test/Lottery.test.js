@@ -31,7 +31,7 @@ async function deployContract(contractDeployer, contractCompiled, arguments, acc
 }
 
 describe ('Lottery Contract tests', () => {
-    let accounts, lottery, contractDeployer, contractCompiled;
+    let accounts, lottery, contractDeployer, contractCompiled,account;
     beforeEach(async () => {
         // Get a list of all accounts
         accounts = await web3.eth.getAccounts();
@@ -42,16 +42,13 @@ describe ('Lottery Contract tests', () => {
         // abi is the JS layer between deployed code and us
         // we should pass the interface, under JSON format, said nothing about specific contract
         contractDeployer = new web3.eth.Contract(contractCompiled.abi);
+        account = accounts[0];
+        lottery = await deployContract(contractDeployer, contractCompiled, [], account);
     })
     it( 'obtain accounts from web3', () => {
        expect(accounts.length > 0).to.be.true;
     })
     describe('when we deploy it  with an account ' , () => {
-        let account;
-        beforeEach(async() => {
-            account = accounts[0];
-            lottery = await deployContract(contractDeployer, contractCompiled, [], account);
-        })
         it( 'it was successful', async () => {
             expect(lottery).not.to.be.null;
             // means that it was successfully deploy if address exists
@@ -81,6 +78,21 @@ describe ('Lottery Contract tests', () => {
                     expect(e.message).to.eq('VM Exception while processing transaction: revert');
                 }
             })
+        })
+    })
+    describe('pickWinner' , () => {
+        const VALID_ETHER_VALUE_WEI = 100000000000000000;
+        beforeEach(async() => {
+            // add 4 players
+            await lottery.methods.enter().send({ from: accounts[0], value: VALID_ETHER_VALUE_WEI });
+            await lottery.methods.enter().send({ from: accounts[1], value: VALID_ETHER_VALUE_WEI  });
+            await lottery.methods.enter().send({ from: accounts[2], value: VALID_ETHER_VALUE_WEI  });
+            await lottery.methods.enter().send({ from: accounts[3], value: VALID_ETHER_VALUE_WEI  });
+        })
+        it('pick a winner will get a which exist in the first four address of account list', async() => {
+            const firstFourAddress = accounts.slice(0,4);
+            const winner = await lottery.methods.pickWinner().call()
+            expect(firstFourAddress.includes(winner)).to.be.true;
         })
     })
 })
