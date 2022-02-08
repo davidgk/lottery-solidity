@@ -62,8 +62,7 @@ describe ('Lottery Contract tests', () => {
         })
         describe('when we enter a player ' , () => {
             let player;
-            const VALID_ETHER_VALUE_WEI = 100000000000000000;
-            const INVALID_ETHER_VALUE_WEI = 1000;
+            const VALID_ETHER_VALUE_WEI = web3.utils.toWei("0.11");
             beforeEach(async() => {
                 player = accounts[1];
             })
@@ -74,7 +73,8 @@ describe ('Lottery Contract tests', () => {
             })
             it('with incorrect amount of money it should throw error', async() => {
                 try {
-                    await lottery.methods.enter().send({from: player, value: INVALID_ETHER_VALUE_WEI})
+                    await lottery.methods.enter().send({from: player, value: 200})
+                    expect.fail('Should fail!');
                 } catch (e) {
                     expect(e.message).to.eq('VM Exception while processing transaction: revert');
                 }
@@ -82,30 +82,31 @@ describe ('Lottery Contract tests', () => {
         })
     })
     describe('pickWinner' , () => {
-        const VALID_ETHER_VALUE_WEI = 100000000000000000;
-        const AMOUNT_WIN = 4 * VALID_ETHER_VALUE_WEI;
+        const VALID_ETHER_VALUE_WEI = web3.utils.toWei("2","ether");
+        const AMOUNT_WIN = VALID_ETHER_VALUE_WEI;
         beforeEach(async() => {
             // add 4 players
             await lottery.methods.enter().send({ from: accounts[1], value: VALID_ETHER_VALUE_WEI });
-            await lottery.methods.enter().send({ from: accounts[2], value: VALID_ETHER_VALUE_WEI  });
-            await lottery.methods.enter().send({ from: accounts[3], value: VALID_ETHER_VALUE_WEI  });
-            await lottery.methods.enter().send({ from: accounts[4], value: VALID_ETHER_VALUE_WEI  });
         });
         it('before pick a winner balance should be 4 ether', async() => {
             const balance =  await lottery.methods.balance().call();
-            expect(balance).to.eq( String(4 * VALID_ETHER_VALUE_WEI) );
+            expect(balance).to.eq( String(AMOUNT_WIN) );
         });
-        it('before pick a winner players would be 4', async() => {
+
+        it('another way to check balance', async() => {
+            const balance =  await web3.eth.getBalance(lottery.options.address)
+            expect(balance).to.eq( String(VALID_ETHER_VALUE_WEI) );
+        });
+
+        it('before pick a winner players would be 1', async() => {
             const players =  await lottery.methods.getPlayers().call();
-            expect(players.length).to.eq( 4);
+            expect(players.length).to.eq( 1);
             expect(players[0]).to.eq( accounts[1]);
-            expect(players[1]).to.eq( accounts[2]);
-            expect(players[2]).to.eq( accounts[3]);
-            expect(players[3]).to.eq( accounts[4]);
         });
         it('when pick a winner from another than manager should throw error', async() => {
             try {
                 await lottery.methods.pickWinner().send({from: accounts[5], gas: 1000000});
+                expect.fail('Should fail!');
             } catch (e) {
                 expect(e.message).to.eq( 'VM Exception while processing transaction: revert');
             }
@@ -117,6 +118,14 @@ describe ('Lottery Contract tests', () => {
             expect(firstFourAddress.includes(winner)).to.be.true;
             const balance =  await lottery.methods.balance().call();
             expect(balance).to.eq( "0" );
+        })
+        it('winner will increase its balance', async() => {
+            const originalBalance = Number(await web3.eth.getBalance(accounts[1]));
+            await lottery.methods.pickWinner().send({from: account, gas: 1000000});
+            const winner = await lottery.methods.winner().call();
+            expect(winner).to.eq( accounts[1] );
+            const winnerBalance = Number(await web3.eth.getBalance(accounts[1]))
+            expect(winnerBalance - originalBalance).to.eq( Number(AMOUNT_WIN) );
         })
         it('after pick a winner players would be 0', async() => {
             await lottery.methods.pickWinner().send({from: account, gas: 1000000});
