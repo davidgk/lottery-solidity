@@ -5,6 +5,8 @@ pragma solidity ^0.8.9;
 contract Lottery {
     address public manager;
     address[] public players;
+    address payable public winner;
+
 
     constructor() {
         manager = msg.sender;
@@ -20,9 +22,24 @@ contract Lottery {
         return uint(keccak256(abi.encodePacked(block.difficulty * block.timestamp * players.length)));
     }
 
-    function pickWinner() public returns (address){
+    function balance() public view returns (uint){
+        return address(this).balance;
+    }
+
+    function pickWinner() public restrictedManager{
         uint randomValue = random();
         uint winnerIndex = randomValue % players.length;
-        return players[winnerIndex];
+        winner = payable(players[winnerIndex]);
+        winner.transfer(address(this).balance);
+        players = new address[](0);
+    }
+
+    function getPlayers() public view returns(address[] memory) {
+        return players;
+    }
+
+    modifier restrictedManager(){
+        require(msg.sender == manager);
+        _;
     }
 }

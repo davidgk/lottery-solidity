@@ -82,17 +82,45 @@ describe ('Lottery Contract tests', () => {
     })
     describe('pickWinner' , () => {
         const VALID_ETHER_VALUE_WEI = 100000000000000000;
+        const AMOUNT_WIN = 4 * VALID_ETHER_VALUE_WEI;
         beforeEach(async() => {
             // add 4 players
-            await lottery.methods.enter().send({ from: accounts[0], value: VALID_ETHER_VALUE_WEI });
-            await lottery.methods.enter().send({ from: accounts[1], value: VALID_ETHER_VALUE_WEI  });
+            await lottery.methods.enter().send({ from: accounts[1], value: VALID_ETHER_VALUE_WEI });
             await lottery.methods.enter().send({ from: accounts[2], value: VALID_ETHER_VALUE_WEI  });
             await lottery.methods.enter().send({ from: accounts[3], value: VALID_ETHER_VALUE_WEI  });
+            await lottery.methods.enter().send({ from: accounts[4], value: VALID_ETHER_VALUE_WEI  });
+        });
+        it('before pick a winner balance should be 4 ether', async() => {
+            const balance =  await lottery.methods.balance().call();
+            expect(balance).to.eq( String(4 * VALID_ETHER_VALUE_WEI) );
+        });
+        it('before pick a winner players would be 4', async() => {
+            const players =  await lottery.methods.getPlayers().call();
+            expect(players.length).to.eq( 4);
+            expect(players[0]).to.eq( accounts[1]);
+            expect(players[1]).to.eq( accounts[2]);
+            expect(players[2]).to.eq( accounts[3]);
+            expect(players[3]).to.eq( accounts[4]);
+        });
+        it('when pick a winner from another than manager should throw error', async() => {
+            try {
+                await lottery.methods.pickWinner().send({from: accounts[5], gas: 1000000});
+            } catch (e) {
+                expect(e.message).to.eq( 'VM Exception while processing transaction: revert');
+            }
         })
         it('pick a winner will get a which exist in the first four address of account list', async() => {
-            const firstFourAddress = accounts.slice(0,4);
-            const winner = await lottery.methods.pickWinner().call()
+            const firstFourAddress = accounts.slice(0,5);
+            await lottery.methods.pickWinner().send({from: account, gas: 1000000});
+            const winner = await lottery.methods.winner().call();
             expect(firstFourAddress.includes(winner)).to.be.true;
+            const balance =  await lottery.methods.balance().call();
+            expect(balance).to.eq( "0" );
         })
+        it('after pick a winner players would be 0', async() => {
+            await lottery.methods.pickWinner().send({from: account, gas: 1000000});
+            const players =  await lottery.methods.getPlayers().call();
+            expect(players.length).to.eq( 0);
+        });
     })
 })
