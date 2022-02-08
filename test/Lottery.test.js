@@ -6,7 +6,8 @@ const ganache = require('ganache-cli');
 // how to communicate our code with that.
 const Web3 = require('web3')
 // get the interface and definition from contract , once compiled
-const contractCompiler = require('../config/compile/Lottery')
+const {compileLottery} = require("../config/contractCompiler");
+
 
 const localNetworkProvider = ganache.provider();
 const web3 = new Web3(localNetworkProvider)
@@ -36,7 +37,7 @@ describe ('Lottery Contract tests', () => {
         // Get a list of all accounts
         accounts = await web3.eth.getAccounts();
         // Use one of those accounts to deploy the contract
-        contractCompiled = contractCompiler();
+        contractCompiled = compileLottery();
         // Teaches to web3 about what methods and lottery has, remember
         // web3 has the bridge role between ou contract and EN
         // abi is the JS layer between deployed code and us
