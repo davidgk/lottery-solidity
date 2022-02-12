@@ -12,7 +12,8 @@
     "@truffle/hdwallet-provider": "^2.0.1",
     "dotenv": "^16.0.0",
     "solc": "0.8.9",
-    "web3": "^1.7.0"
+    "web3": "^1.7.0",
+    "zicky": "0.0.4"
   },
   "devDependencies": {
     "chai-as-promised": "^7.1.1",

@@ -1,9 +1,7 @@
-// compile code will go here
-const {compileContract} = require("./compiler");
+const {compileContract} = require("zicky");
 
 const compileLottery = () => {
-    const contract = compileContract('Lottery.sol');
-    return contract.Lottery;
+    return compileContract('Lottery.sol', "contracts")
 }
 
 module.exports = {
