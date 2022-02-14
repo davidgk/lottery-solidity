@@ -5,7 +5,9 @@ const {expect} = require('chai');
 const ganache = require('ganache-cli');
 // how to communicate our code with that.
 const Web3 = require('web3')
-const {compileContract} = require("zicky");
+const {compileContract, getAbiFromContract} = require("zicky");
+const path = require("path");
+const fs = require("fs");
 // get the interface and definition from contract , once compiled
 
 
@@ -132,6 +134,12 @@ describe ('Lottery Contract tests', () => {
             await lottery.methods.pickWinner().send({from: account, gas: 1000000});
             const players =  await lottery.methods.getPlayers().call();
             expect(players.length).to.eq( 0);
+        });
+        it('test getAbi', async() => {
+            getAbiFromContract('Lottery.sol', "contracts");
+            let expected = '../Lottery.abi.js';
+            expect(fs.existsSync(path.join(__dirname, expected))).to.be.true
+            fs.unlinkSync(expected);
         });
     })
 })
