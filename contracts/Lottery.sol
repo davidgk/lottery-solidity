@@ -18,7 +18,7 @@ contract Lottery {
 
     // it's a pseudo random number , as we can see is easy to predict each params
     function random() private view returns (uint) {
-        return uint(keccak256(abi.encodePacked(block.difficulty * block.timestamp * players.length)));
+        return uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, players)));
     }
 
     function balance() public view returns (uint){

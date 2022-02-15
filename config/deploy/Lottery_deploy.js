@@ -18,6 +18,7 @@ const deploy = async (apiInfura = process.env.INFURA_RINKEBY_ENDPOINT_V3, contra
      * Unlock your account to make transactions against EN.
      * @type {HDWalletProvider}
      */
+    console.log("ABI: " + JSON.stringify(contractCompiled.abi))
     const provider = new HDWalletProvider( process.env.ACCOUNT_MNEMONIC, apiInfura );
     const web3 = new Web3(provider)
     const accounts = await web3.eth.getAccounts();

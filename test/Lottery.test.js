@@ -139,7 +139,6 @@ describe ('Lottery Contract tests', () => {
             getAbiFromContract('Lottery.sol', "contracts");
             let expected = '../Lottery.abi.js';
             expect(fs.existsSync(path.join(__dirname, expected))).to.be.true
-            fs.unlinkSync(expected);
         });
     })
 })
