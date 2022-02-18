@@ -13,12 +13,11 @@
     "dotenv": "^16.0.0",
     "solc": "0.8.9",
     "web3": "^1.7.0",
-    "zicky": "0.1.6"
+    "zicky": "1.0.3"
   },
   "devDependencies": {
     "chai-as-promised": "^7.1.1",
     "chai": "^4.3.6",
-    "ganache-cli": "^6.12.2",
     "mocha": "^9.2.0"
   }
 }
